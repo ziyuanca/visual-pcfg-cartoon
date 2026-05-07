@@ -196,10 +196,11 @@ def delete_punc(original_t, do_nothing=0, punc_indices=None):
         for sub_index, sub in indexed_subs:
             # print(sub_index, sub)
             label = sub.label()
-            if label in PUNC_LABELS \
+            has_alpha = any(char.isalpha() for leaf in sub.leaves() for char in str(leaf))
+            if not has_alpha and (label in PUNC_LABELS \
                 or 'PUNC' in label \
                 or PUNC_RE.match(label) \
-                or (not return_punc_indices and sub_index in punc_indices):
+                or (not return_punc_indices and sub_index in punc_indices)):
                 _prune(t, sub)
                 if return_punc_indices:
                     indices.append(sub_index)
