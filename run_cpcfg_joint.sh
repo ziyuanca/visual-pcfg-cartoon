@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-#SBATCH --time=024:00:00
+#SBATCH --time=012:00:00
 #SBATCH --nodes=1
 #SBATCH --job-name=cpcfg_joint
 #SBATCH --gpus=1

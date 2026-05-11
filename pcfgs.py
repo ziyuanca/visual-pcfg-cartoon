@@ -468,7 +468,9 @@ class CompoundPCFG(nn.Module):
                     root_ids = torch.argmax(params[2], dim=-1).tolist()
                     tree_list = [nltk_tree.Tree.fromstring(f"({rid} 0)") for rid in root_ids]
                 else:
-                    the_spans = dist.argmax[-1]
+                    argmax_parts = dist.argmax
+                    term_parts = argmax_parts[0]
+                    the_spans = argmax_parts[-1]
                     span_lists, _, _ = _extract_parses(the_spans, lengths.tolist(), inc=0)
                     root_ids = torch.argmax(params[2], dim=-1).tolist()
                     tree_list = []
@@ -477,10 +479,16 @@ class CompoundPCFG(nn.Module):
                         if sent_len <= 1:
                             tree_list.append(nltk_tree.Tree.fromstring(f"({root_ids[b]} 0)"))
                             continue
+                        term_ids = torch.argmax(term_parts[b, :sent_len], dim=-1).tolist()
                         nodes = [
+                            Node(cat, index, index + 1, D=-1, K=self.NT)
+                            for index, cat in enumerate(term_ids)
+                        ]
+                        nodes.extend(
                             Node(cat, left, right + 1, D=-1, K=self.NT)
                             for (left, right, cat) in sent_spans
-                        ]
+                            if left != right
+                        )
                         if not nodes:
                             tree_list.append(nltk_tree.Tree.fromstring(f"({root_ids[b]} 0)"))
                             continue
